@@ -3,7 +3,7 @@
   "name": "couchbase-integration",
   "description": "Couchbase Integration for Dataloop",
   "scope": "public",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "attributes": {
     "Provider": "Couchbase",
     "Category": "Application",
@@ -16,7 +16,7 @@
   "codebase": {
     "type": "git",
     "gitUrl": "https://github.com/dataloop-ai-apps/integrations-couchbase",
-    "gitTag": "0.0.2"
+    "gitTag": "0.0.3"
   },
   "components": {
     "pipelineNodes": [
