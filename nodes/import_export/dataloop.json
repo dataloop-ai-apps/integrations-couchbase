@@ -1,0 +1,192 @@
+{
+  "displayName": "Couchbase Integration",
+  "name": "couchbase-integration",
+  "description": "Couchbase Integration for Dataloop",
+  "scope": "public",
+  "version": "0.0.1",
+  "attributes": {
+    "Provider": "Couchbase",
+    "Category": "Application",
+    "Deployed By": "Couchbase",
+    "License": "Apache 2.0",
+    "Media Type": ["Text"],
+    "Application Type": ["Pipeline Node"],
+    "Hub": ["Dataloop"]
+  },
+  "codebase": {
+    "type": "git",
+    "gitUrl": "https://github.com/dataloop-ai-apps/integrations-couchbase",
+    "gitTag": "0.0.1"
+  },
+  "components": {
+    "pipelineNodes": [
+      {
+        "invoke": {
+          "type": "function",
+          "namespace": "couchbase-integ-service.couchbase-integ-module.couchbase_to_dataloop"
+        },
+        "name": "Import Couchbase",
+        "categories": ["Couchbase"],
+        "displayName": "Import Couchbase Collection",
+        "description": "Import Couchbase Collection into Dataloop",
+        "scope": "project",
+        "configuration": {
+          "fields": [
+            {
+              "name": "name",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Import Couchbase Collection",
+                "required": true,
+                "placeholder": "Insert node name"
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
+      },
+      {
+        "invoke": {
+          "type": "function",
+          "namespace": "couchbase-integ-service.couchbase-integ-module.update_document"
+        },
+        "name": "Export Couchbase Document",
+        "categories": ["Couchbase"],
+        "displayName": "Export Couchbase Document",
+        "description": "Export Dataloop Best Response to Couchbase Document",
+        "scope": "project",
+        "configuration": {
+          "fields": [
+            {
+              "name": "name",
+              "title": "Node Name",
+              "props": {
+                "title": true,
+                "type": "string",
+                "default": "Export Couchbase Document",
+                "required": true,
+                "placeholder": "Insert node name"
+              },
+              "rules": [
+                {
+                  "type": "required",
+                  "effect": "error"
+                }
+              ],
+              "widget": "dl-input"
+            }
+          ]
+        }
+      }
+    ],
+    "modules": [
+      {
+        "name": "couchbase-integ-module",
+        "entryPoint": "nodes/import_export/couchbase_base.py",
+        "className": "CouchbaseBase",
+        "computeConfig": "couchbase-integ-service",
+        "integrations": ["dl-couchbase-password"],
+        "functions": [
+          {
+            "name": "couchbase_to_dataloop",
+            "input": [
+              {
+                "type": "String",
+                "name": "endpoint"
+              },
+              {
+                "type": "String",
+                "name": "username"
+              },
+              {
+                "type": "String",
+                "name": "bucket"
+              },
+              {
+                "type": "String",
+                "name": "scope"
+              },
+              {
+                "type": "String",
+                "name": "collection"
+              },
+              {
+                "type": "String",
+                "name": "dataset_id"
+              }
+            ],
+            "output": [
+              {
+                "type": "Item[]",
+                "name": "items"
+              }
+            ],
+            "displayIcon": "icon-dl-couchbase"
+          },
+          {
+            "name": "update_document",
+            "input": [
+              {
+                "type": "Item",
+                "name": "item"
+              },
+              {
+                "type": "String",
+                "name": "endpoint"
+              },
+              {
+                "type": "String",
+                "name": "username"
+              },
+              {
+                "type": "String",
+                "name": "bucket"
+              },
+              {
+                "type": "String",
+                "name": "scope"
+              },
+              {
+                "type": "String",
+                "name": "collection"
+              }
+            ],
+            "output": [
+              {
+                "type": "Item",
+                "name": "item"
+              }
+            ],
+            "displayIcon": "icon-dl-couchbase"
+          }
+        ]
+      }
+    ],
+    "computeConfigs": [
+      {
+        "name": "couchbase-integ-service",
+        "moduleName": "couchbase-integ-module",
+        "runtime": {
+          "podType": "regular-xs",
+          "runnerImage": "gcr.io/viewo-g/piper/agent/cpu/couchbase-integrations:0.0.1",
+          "numReplicas": 1,
+          "concurrency": 10,
+          "autoscaler": {
+            "type": "rabbitmq",
+            "minReplicas": 0,
+            "maxReplicas": 2,
+            "queueLength": 10
+          }
+        }
+      }
+    ]
+  }
+}
