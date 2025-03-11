@@ -6,7 +6,7 @@ import dtlpy as dl
 from couchbase.exceptions import CouchbaseException
 from couchbase.auth import PasswordAuthenticator
 from couchbase.cluster import Cluster
-from couchbase.options import ClusterOptions
+from couchbase.options import ClusterOptions, TransactionQueryOptions
 
 logger = logging.getLogger(name="couchbase-connect")
 
@@ -148,11 +148,10 @@ class CouchbaseBase(dl.BaseServiceRunner):
             def txn_logic(ctx, bucket_name, scope_name, collection_name, doc_id, response_text):
                 query = f"""
                 UPDATE `{bucket_name}`.`{scope_name}`.`{collection_name}`
-                SET response = "{response_text}", model_id = "{model_id}", name = "{name}"
-                WHERE META().id = "{doc_id}"
+                SET response = $response_text, model_id = "{model_id}", name = "{name}"
+                WHERE META().id = $doc_id
                 """
-                print(query)
-                ctx.query(query)
+                ctx.query(query, TransactionQueryOptions(named_parameters={"response_text": response_text, "doc_id": doc_id}))
 
             cluster.transactions.run(lambda ctx: txn_logic(ctx, bucket, scope, collection, doc_id, best_response))
             print("Transaction committed successfully!")
